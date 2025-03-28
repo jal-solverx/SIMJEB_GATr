@@ -1,6 +1,6 @@
-
-
+import numpy as np
 import torch
+from scipy.spatial.transform import Rotation
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader as GraphLoader
 from gatr.interface import (
@@ -148,7 +148,8 @@ def extract_from_PGA(multivector, scalar, base_graph):
     curv = extract_pluecker_ray(multivector) # Extract the curvature from the bivector, (objects, 6)
     curv = curv[:, :3] # The last three elements are the position, so we remove them
     norm = extract_oriented_plane(multivector) # Extract the normal from the vector, (objects, 3)
-    bc = scalar
+    #bc = scalar
+    bc = extract_scalar(multivector) # Extract the scalar component, which for now is the predicted stress (objectss, 1)
 
     # BC not encoded in multivector anymore
     # bc = extract_scalar(multivector) # Extract the BC from the scalar, (objects, 1)
@@ -158,4 +159,37 @@ def extract_from_PGA(multivector, scalar, base_graph):
 
     result_graph = Data(x = x, bc = bc, edge_index = base_graph.edge_index, y = base_graph.y)
 
+    return result_graph
+
+def rigid_body_transform_graph(input_graph, euler_angles, translation):
+    """
+    Takes the input graph and applies a rigid body transformation to it.
+
+    input: torch_geometric.data.Data
+        The input graph data, encoded in the form described in train.py
+    
+    
+    """
+    # Extract the graph information
+    x = input_graph.x
+    pos = x[:, :3] # position (N,3)
+    curv = x[:, 3:6] # curvature (N,3)
+    norm = x[:, 6:9] # normal (N,3)
+    bc = input_graph.bc # BC (N,2)
+    y = input_graph.y # y (N,1)
+    edge_index = input_graph.edge_index # edge_index (2,M)
+    # transform y if necessary later on
+
+    # Calculate the rotation matrix
+    rot = Rotation.from_euler('zyx', euler_angles, degrees=True)
+    rot_matrix = rot.as_matrix()
+
+    # Perform the rigid body transformation
+    pos = torch.matmul(rot_matrix, pos.T).T + translation
+    curv = torch.matmul(rot_matrix, curv.T).T
+    norm = torch.matmul(rot_matrix, norm.T).T
+
+    # Create the resulting graph
+    x = torch.cat([pos, curv, norm], dim=-1)
+    result_graph = Data(x = x, bc = bc, edge_index = edge_index, y = y)
     return result_graph

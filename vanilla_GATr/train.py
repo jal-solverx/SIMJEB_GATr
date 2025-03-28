@@ -13,19 +13,6 @@ from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader as GraphLoader
 from torch_geometric.utils import to_undirected, add_self_loops
 
-from gatr.interface import (
-    embed_point,
-    embed_scalar,
-    embed_pluecker_ray,
-    embed_oriented_plane,
-    embed_translation,
-    extract_scalar,
-    extract_point,
-    extract_pluecker_ray,
-    extract_oriented_plane,
-    extract_point_embedding_reg,
-)
-
 from modules import *
 from utils import *
 
@@ -44,8 +31,8 @@ class Trainer():
 
         train_graph_list, valid_graph_list = self.process_data(cfg)
 
-        self.train_loader = GraphLoader(train_graph_list, batch_size=1, shuffle=shuffle) # default는 True
-        self.valid_loader = GraphLoader(valid_graph_list, batch_size=1, shuffle=False)  
+        self.train_loader = GraphLoader(train_graph_list, batch_size=1, shuffle=shuffle, pin_memory = True, num_workers = 4) # default는 True
+        self.valid_loader = GraphLoader(valid_graph_list, batch_size=1, shuffle=False, pin_memory = True, num_workers = 4)  
 
         #self.make_model_components(cfg)
         
@@ -96,9 +83,11 @@ class Trainer():
 
                 force = (force - self.min_force) / (self.max_force - self.min_force)
                 force = force.expand(N, -1)  # [N, 3]으로 확장
+                # TODO: Encode the force information in to the graph
 
                 x = torch.cat([coords, curv, norm], dim=-1) # [N, 9]
-                bc = torch.cat([rbe2_onehot, rbe3_onehot], dim=-1) # [N, 2]
+                bc = torch.cat([rbe2_onehot, rbe3_onehot], dim = -1) # [N, 2]
+                # bc = torch.cat([force, rbe2_onehot, rbe3_onehot], dim=-1) # [N, 5]
 
                 print(f"[train] sample_idx: {sample_idx:>2} | shape of input: {x.shape} | shape of bc: {bc.shape}")
 
@@ -142,7 +131,8 @@ class Trainer():
                 force = force.expand(N, -1)  # [N, 3]으로 확장
 
                 x = torch.cat([coords, curv, norm], dim=-1) # [N, 9]
-                bc = torch.cat([rbe2_onehot, rbe3_onehot], dim=-1) # [N, 2]
+                bc = torch.cat([rbe2_onehot, rbe3_onehot], dim = -1) # [N, 2]
+                # bc = torch.cat([force, rbe2_onehot, rbe3_onehot], dim=-1) # [N, 5]
 
                 print(f"[valid] sample_idx: {sample_idx:>2} | shape of input: {x.shape} | shape of bc: {bc.shape}")
 
@@ -179,9 +169,10 @@ class Trainer():
 
             data.x[:, :3] = (data.x[:, :3] - self.coords_min) / (self.coords_max - self.coords_min)
             data.x[:, 3:6] = (data.x[:, 3:6] - self.curv_mean) / self.curv_std
-            data.x[:, 6:9] = (data.x[:, 6:9] - self.norm_mean) / self.norm_std
+            #data.x[:, 6:9] = (data.x[:, 6:9] - self.norm_mean) / self.norm_std
+            data.x[:, 6:9] = nn.functional.normalize(data.x[:, 6:9], p=2.0, dim = -1)
 
-            data.bc = (data.bc - self.target_mean) / self.target_std
+            # data.bc = (data.bc - self.target_mean) / self.target_std
 
             data.edge_weight = calculate_edge_features(data.x[:, 0:3], data.edge_index)
 
@@ -190,7 +181,8 @@ class Trainer():
 
             data.x[:, :3] = (data.x[:, :3] - self.coords_min) / (self.coords_max - self.coords_min)
             data.x[:, 3:6] = (data.x[:, 3:6] - self.curv_mean) / self.curv_std
-            data.x[:, 6:9] = (data.x[:, 6:9] - self.norm_mean) / self.norm_std
+            # data.x[:, 6:9] = (data.x[:, 6:9] - self.norm_mean) / self.norm_std
+            data.x[:, 6:9] = nn.functional.normalize(data.x[:, 6:9], p=2.0, dim = -1)
 
             # data.bc = (data.bc - self.target_mean) / self.target_std
 
@@ -207,11 +199,14 @@ class Trainer():
     def make_model_components(self, cfg: DictConfig):
 
         self.model = vanillaGATr(
+            in_mv_channel = cfg.arch.encoder.in_mv_channel,
+            in_s_channel = cfg.arch.encoder.in_s_channel,
             hidden_mv_channel= cfg.arch.processor.hidden_mv_channel,
+            hidden_s_channel = cfg.arch.processor.hidden_s_channel,
             n_attn_heads= cfg.arch.processor.n_attn_heads,
-            n_layers_enc = cfg.arch.encoder.n_layers_enc,
-            n_layers_attn = cfg.arch.processor.n_layers_attn,
-            n_layers_dec = cfg.arch.decoder.n_layers_dec,
+            n_layers_gatr = cfg.arch.processor.n_layers_gatr,
+            out_mv_channel = cfg.arch.decoder.out_mv_channel,
+            out_s_channel = cfg.arch.decoder.out_s_channel
          ).to(self.device)
 
         summary(self.model)
@@ -229,14 +224,15 @@ class Trainer():
             
             for graph in self.train_loader:
                 self.optimizer.zero_grad()
-                graph = graph.to(self.device)
-                pred = self.model(graph).flatten()
+                graph = graph.to(self.device, non_blocking = True)
+                result_graph = self.model(graph)
+                pred = result_graph.bc.squeeze(-1)
                 y = graph.y.flatten()
                 loss = self.criterion(pred, y)
                 loss.backward()
                 self.optimizer.step()
                 train_loss += loss.item()
-                graph.to("cpu").detach()
+                # graph.to("cpu").detach()
                 
             train_loss /= len(self.train_loader)
             self.train_save_ckpt(train_loss, epoch)
@@ -258,8 +254,9 @@ class Trainer():
         valid_loss = 0
         self.model.eval()
         for graph in self.valid_loader:
-            graph = graph.to(self.device)
-            pred = self.model(graph).flatten()
+            graph = graph.to(self.device, non_blocking = True)
+            result_graph = self.model(graph)
+            pred = result_graph.bc.squeeze(-1)
             y = graph.y.flatten()
             loss = self.criterion(pred, y)
             valid_loss += loss.item()
@@ -280,6 +277,9 @@ class Trainer():
             self.min_val_loss = loss
             self.min_val_epoch = epoch            
             torch.save(self.model.state_dict(), os.path.join(self.ckpt_path, "best_valid_loss.pt"))
+
+    def load_model(self, ckpt):
+        self.model.load_state_dict(ckpt)
 
 
 @hydra.main(config_path="config", version_base="1.1", config_name="config.yaml") 

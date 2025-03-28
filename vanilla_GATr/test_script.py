@@ -52,7 +52,14 @@ bc = torch.tensor([
 edge_index = torch.tensor([
         [0, 0],
         [1, 2]
-    ], dtype=torch.long)
+    ], dtype=torch.float)
+
+force = torch.tensor([
+    [1,2,1],
+    [1,2,1],
+    [1,2,1]
+])
+bc = torch.cat([force, bc], dim = -1)
 
 graph = Data(x=x, bc=bc, edge_index=edge_index)
 graph = graph.to(trainer.device)

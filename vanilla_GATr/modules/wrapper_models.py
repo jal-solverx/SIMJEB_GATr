@@ -15,19 +15,25 @@ class vanillaGATr(nn.Module):
     """
     def __init__(
         self,
+        in_mv_channel : int,
+        in_s_channel : int,
+        n_layers_gatr : int,
         n_attn_heads : int,
-        n_layers_enc : int,
-        n_layers_attn : int,
         hidden_mv_channel: int,
-        n_layers_dec : int,
+        hidden_s_channel : int,
+        out_mv_channel : int,
+        out_s_channel : int
     ):
         super().__init__()
 
         # dimension not specified as we only use multivectors 
-        self.n_layers_enc = n_layers_enc
-        self.n_layers_attn = n_layers_attn
-        self.n_layers_dec = n_layers_dec
-        self.n_hidden_mv_channel = hidden_mv_channel
+        self.n_layers_gatr = n_layers_gatr
+        self.in_mv_channel = in_mv_channel
+        self.in_s_channel = in_s_channel
+        self.hidden_mv_channel = hidden_mv_channel
+        self.hidden_s_channel = hidden_s_channel
+        self.out_mv_channel = out_mv_channel
+        self.out_s_channel = out_s_channel
 
         '''
         (1) Encoder
@@ -35,8 +41,8 @@ class vanillaGATr(nn.Module):
         '''
 
         self.encoders = nn.ModuleList([
-            EquiLinear(in_mv_channels=1, out_mv_channels=self.n_hidden_mv_channel, in_s_channels= 2, out_s_channels= 2)
-            for _ in range(n_layers_enc)
+            EquiLinear(in_mv_channels=self.in_mv_channel, out_mv_channels=self.hidden_mv_channel, in_s_channels=self.in_s_channel, out_s_channels= self.hidden_s_channel)
+            for _ in range(1)
         ])
         
 
@@ -47,24 +53,24 @@ class vanillaGATr(nn.Module):
 
         self.processor = nn.ModuleList([
             GATrBlock(
-                mv_channels=self.n_hidden_mv_channel,
-                s_channels=2,
+                mv_channels=self.hidden_mv_channel,
+                s_channels=self.hidden_s_channel,
                 attention=SelfAttentionConfig(
-                    in_mv_channels=self.n_hidden_mv_channel,
-                    out_mv_channels=self.n_hidden_mv_channel,
-                    in_s_channels = 2,
-                    out_s_channels = 2,
+                    in_mv_channels = self.hidden_mv_channel,
+                    out_mv_channels = self.hidden_mv_channel,
+                    in_s_channels = self.hidden_s_channel,
+                    out_s_channels = self.hidden_s_channel,
                     num_heads=n_attn_heads,
                     dropout_prob=0.0,
                 ),
                 mlp=MLPConfig(
-                    mv_channels = self.n_hidden_mv_channel,
-                    s_channels = 2,
+                    mv_channels = self.hidden_mv_channel,
+                    s_channels = self.hidden_s_channel,
                     dropout_prob=0.0,
                 ),
                 dropout_prob=0.0
             )
-            for _ in range(n_layers_attn)
+            for _ in range(n_layers_gatr)
         ])
 
 
@@ -74,8 +80,8 @@ class vanillaGATr(nn.Module):
         '''
 
         self.decoders = nn.ModuleList([
-            EquiLinear(in_mv_channels=self.n_hidden_mv_channel, out_mv_channels=1, in_s_channels = 2, out_s_channels=2)
-            for _ in range(n_layers_dec)
+            EquiLinear(in_mv_channels=self.hidden_mv_channel, out_mv_channels=self.out_mv_channel, in_s_channels = self.hidden_s_channel, out_s_channels=self.out_s_channel)
+            for _ in range(1)
         ])
 
     def forward(self, graph: Data):
