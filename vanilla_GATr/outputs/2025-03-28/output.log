@@ -1,0 +1,338 @@
+nohup: ignoring input
+/home/ubuntu/miniforge3/envs/JHL_env/lib/python3.11/site-packages/torch_geometric/typing.py:68: UserWarning: An issue occurred while importing 'pyg-lib'. Disabling its usage. Stacktrace: /home/ubuntu/miniforge3/envs/JHL_env/lib/python3.11/site-packages/libpyg.so: undefined symbol: _ZN5torch8autograd12VariableInfoC1ERKN2at6TensorE
+  warnings.warn(f"An issue occurred while importing 'pyg-lib'. "
+/home/ubuntu/miniforge3/envs/JHL_env/lib/python3.11/site-packages/torch_geometric/typing.py:124: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: /home/ubuntu/miniforge3/envs/JHL_env/lib/python3.11/site-packages/libpyg.so: undefined symbol: _ZN5torch8autograd12VariableInfoC1ERKN2at6TensorE
+  warnings.warn(f"An issue occurred while importing 'torch-sparse'. "
+[train] sample_idx: 21 | shape of input: torch.Size([36544, 9]) | shape of bc: torch.Size([36544, 2])
+[train] sample_idx: 30 | shape of input: torch.Size([21906, 9]) | shape of bc: torch.Size([21906, 2])
+[train] sample_idx: 38 | shape of input: torch.Size([58270, 9]) | shape of bc: torch.Size([58270, 2])
+[train] sample_idx: 62 | shape of input: torch.Size([28832, 9]) | shape of bc: torch.Size([28832, 2])
+[train] sample_idx:  8 | shape of input: torch.Size([60068, 9]) | shape of bc: torch.Size([60068, 2])
+[train] sample_idx:  9 | shape of input: torch.Size([97030, 9]) | shape of bc: torch.Size([97030, 2])
+[train] sample_idx: 15 | shape of input: torch.Size([46732, 9]) | shape of bc: torch.Size([46732, 2])
+[train] sample_idx: 23 | shape of input: torch.Size([43350, 9]) | shape of bc: torch.Size([43350, 2])
+[train] sample_idx:  6 | shape of input: torch.Size([68746, 9]) | shape of bc: torch.Size([68746, 2])
+[train] sample_idx: 10 | shape of input: torch.Size([86471, 9]) | shape of bc: torch.Size([86471, 2])
+[train] sample_idx: 22 | shape of input: torch.Size([75949, 9]) | shape of bc: torch.Size([75949, 2])
+[train] sample_idx: 63 | shape of input: torch.Size([53387, 9]) | shape of bc: torch.Size([53387, 2])
+[train] sample_idx: 14 | shape of input: torch.Size([95091, 9]) | shape of bc: torch.Size([95091, 2])
+[train] sample_idx: 29 | shape of input: torch.Size([231760, 9]) | shape of bc: torch.Size([231760, 2])
+[train] sample_idx: 35 | shape of input: torch.Size([65106, 9]) | shape of bc: torch.Size([65106, 2])
+[train] sample_idx: 40 | shape of input: torch.Size([28666, 9]) | shape of bc: torch.Size([28666, 2])
+[train] sample_idx: 19 | shape of input: torch.Size([90058, 9]) | shape of bc: torch.Size([90058, 2])
+[train] sample_idx: 27 | shape of input: torch.Size([63483, 9]) | shape of bc: torch.Size([63483, 2])
+[train] sample_idx: 28 | shape of input: torch.Size([59952, 9]) | shape of bc: torch.Size([59952, 2])
+[train] sample_idx: 33 | shape of input: torch.Size([167845, 9]) | shape of bc: torch.Size([167845, 2])
+[valid] sample_idx: 20 | shape of input: torch.Size([57168, 9]) | shape of bc: torch.Size([57168, 2])
+[valid] sample_idx:  4 | shape of input: torch.Size([87908, 9]) | shape of bc: torch.Size([87908, 2])
+[valid] sample_idx:  0 | shape of input: torch.Size([112873, 9]) | shape of bc: torch.Size([112873, 2])
+[valid] sample_idx: 12 | shape of input: torch.Size([123939, 9]) | shape of bc: torch.Size([123939, 2])
+[valid] sample_idx: 16 | shape of input: torch.Size([62273, 9]) | shape of bc: torch.Size([62273, 2])
+# of train dataset: 20
+# of valid dataset 5
+experiment:
+  seed: 36
+  device: cuda:3
+  wandb: false
+  wandb_api_key: ''
+  wandb_project_name: SimJEB_vanilla GATr
+dataset:
+  data_dir: /data/SimJEB/
+  max_epochs: 200
+  train_sample_id:
+  - 21
+  - 30
+  - 38
+  - 62
+  - 8
+  - 9
+  - 15
+  - 23
+  - 6
+  - 10
+  - 22
+  - 63
+  - 14
+  - 29
+  - 35
+  - 40
+  - 19
+  - 27
+  - 28
+  - 33
+  valid_sample_id:
+  - 20
+  - 4
+  - 0
+  - 12
+  - 16
+arch:
+  encoder:
+    in_mv_channel: 1
+    in_s_channel: 2
+  processor:
+    hidden_mv_channel: 4
+    hidden_s_channel: 2
+    n_layers_gatr: 8
+    n_attn_heads: 8
+  decoder:
+    out_mv_channel: 1
+    out_s_channel: 1
+scheduler:
+  initial_lr: 0.005
+  weight_decay: 0.05
+
+================================================================================
+Layer (type:depth-idx)                                  Param #
+================================================================================
+vanillaGATr                                             --
+├─ModuleList: 1-1                                       --
+│    └─EquiLinear: 2-1                                  36
+│    │    └─Linear: 3-1                                 12
+│    │    └─Linear: 3-2                                 4
+│    │    └─Linear: 3-3                                 4
+├─ModuleList: 1-2                                       --
+│    └─GATrBlock: 2-2                                   --
+│    │    └─EquiLayerNorm: 3-4                          --
+│    │    └─SelfAttention: 3-5                          1,180
+│    │    └─GeoMLP: 3-6                                 1,602
+│    └─GATrBlock: 2-3                                   --
+│    │    └─EquiLayerNorm: 3-7                          --
+│    │    └─SelfAttention: 3-8                          1,180
+│    │    └─GeoMLP: 3-9                                 1,602
+│    └─GATrBlock: 2-4                                   --
+│    │    └─EquiLayerNorm: 3-10                         --
+│    │    └─SelfAttention: 3-11                         1,180
+│    │    └─GeoMLP: 3-12                                1,602
+│    └─GATrBlock: 2-5                                   --
+│    │    └─EquiLayerNorm: 3-13                         --
+│    │    └─SelfAttention: 3-14                         1,180
+│    │    └─GeoMLP: 3-15                                1,602
+│    └─GATrBlock: 2-6                                   --
+│    │    └─EquiLayerNorm: 3-16                         --
+│    │    └─SelfAttention: 3-17                         1,180
+│    │    └─GeoMLP: 3-18                                1,602
+│    └─GATrBlock: 2-7                                   --
+│    │    └─EquiLayerNorm: 3-19                         --
+│    │    └─SelfAttention: 3-20                         1,180
+│    │    └─GeoMLP: 3-21                                1,602
+│    └─GATrBlock: 2-8                                   --
+│    │    └─EquiLayerNorm: 3-22                         --
+│    │    └─SelfAttention: 3-23                         1,180
+│    │    └─GeoMLP: 3-24                                1,602
+│    └─GATrBlock: 2-9                                   --
+│    │    └─EquiLayerNorm: 3-25                         --
+│    │    └─SelfAttention: 3-26                         1,180
+│    │    └─GeoMLP: 3-27                                1,602
+├─ModuleList: 1-3                                       --
+│    └─EquiLinear: 2-10                                 36
+│    │    └─Linear: 3-28                                3
+│    │    └─Linear: 3-29                                5
+│    │    └─Linear: 3-30                                2
+================================================================================
+Total params: 22,358
+Trainable params: 22,358
+Non-trainable params: 0
+================================================================================
+Epoch [   1/ 200] | Train Loss: 1.568654 | Val Loss: 0.685419 | LR: 5e-03
+Epoch [   2/ 200] | Train Loss: 1.235322 | Val Loss: 0.463471 | LR: 5e-03
+Epoch [   3/ 200] | Train Loss: 1.069478 | Val Loss: 0.471537 | LR: 5e-03
+Epoch [   4/ 200] | Train Loss: 1.039368 | Val Loss: 0.476333 | LR: 5e-03
+Epoch [   5/ 200] | Train Loss: 1.030726 | Val Loss: 0.480513 | LR: 5e-03
+Epoch [   6/ 200] | Train Loss: 1.025362 | Val Loss: 0.485793 | LR: 5e-03
+Epoch [   7/ 200] | Train Loss: 1.020550 | Val Loss: 0.491006 | LR: 5e-03
+Epoch [   8/ 200] | Train Loss: 1.015830 | Val Loss: 0.494843 | LR: 5e-03
+Epoch [   9/ 200] | Train Loss: 1.012001 | Val Loss: 0.496709 | LR: 5e-03
+Epoch [  10/ 200] | Train Loss: 1.008160 | Val Loss: 0.496630 | LR: 5e-03
+Epoch [  11/ 200] | Train Loss: 1.005876 | Val Loss: 0.496488 | LR: 5e-03
+Epoch [  12/ 200] | Train Loss: 1.001404 | Val Loss: 0.495555 | LR: 5e-03
+Epoch [  13/ 200] | Train Loss: 0.997818 | Val Loss: 0.492957 | LR: 5e-03
+Epoch [  14/ 200] | Train Loss: 0.993571 | Val Loss: 0.488645 | LR: 5e-03
+Epoch [  15/ 200] | Train Loss: 0.989943 | Val Loss: 0.484486 | LR: 5e-03
+Epoch [  16/ 200] | Train Loss: 0.985307 | Val Loss: 0.480530 | LR: 5e-03
+Epoch [  17/ 200] | Train Loss: 0.980914 | Val Loss: 0.476747 | LR: 5e-03
+Epoch [  18/ 200] | Train Loss: 0.974111 | Val Loss: 0.476256 | LR: 5e-03
+Epoch [  19/ 200] | Train Loss: 0.968557 | Val Loss: 0.483710 | LR: 5e-03
+Epoch [  20/ 200] | Train Loss: 0.959510 | Val Loss: 0.491810 | LR: 5e-03
+Epoch [  21/ 200] | Train Loss: 0.950460 | Val Loss: 0.511100 | LR: 5e-03
+Epoch [  22/ 200] | Train Loss: 0.947216 | Val Loss: 0.525543 | LR: 5e-03
+Epoch [  23/ 200] | Train Loss: 0.945946 | Val Loss: 0.528761 | LR: 5e-03
+Epoch [  24/ 200] | Train Loss: 0.943072 | Val Loss: 0.535371 | LR: 5e-03
+Epoch [  25/ 200] | Train Loss: 0.940663 | Val Loss: 0.564115 | LR: 5e-03
+Epoch [  26/ 200] | Train Loss: 0.964191 | Val Loss: 0.478761 | LR: 5e-03
+Epoch [  27/ 200] | Train Loss: 1.056947 | Val Loss: 0.561472 | LR: 5e-03
+Epoch [  28/ 200] | Train Loss: 1.201953 | Val Loss: 0.470911 | LR: 5e-03
+Epoch [  29/ 200] | Train Loss: 1.007113 | Val Loss: 0.469294 | LR: 5e-03
+Epoch [  30/ 200] | Train Loss: 0.975772 | Val Loss: 0.458314 | LR: 5e-03
+Epoch [  31/ 200] | Train Loss: 0.948247 | Val Loss: 0.476268 | LR: 5e-03
+Epoch [  32/ 200] | Train Loss: 0.933951 | Val Loss: 0.567271 | LR: 5e-03
+Epoch [  33/ 200] | Train Loss: 0.935130 | Val Loss: 0.523929 | LR: 5e-03
+Epoch [  34/ 200] | Train Loss: 0.904287 | Val Loss: 0.518913 | LR: 5e-03
+Epoch [  35/ 200] | Train Loss: 0.912780 | Val Loss: 0.521916 | LR: 5e-03
+Epoch [  36/ 200] | Train Loss: 0.936162 | Val Loss: 0.584082 | LR: 5e-03
+Epoch [  37/ 200] | Train Loss: 0.938736 | Val Loss: 0.505434 | LR: 5e-03
+Epoch [  38/ 200] | Train Loss: 0.908599 | Val Loss: 0.577769 | LR: 5e-03
+Epoch [  39/ 200] | Train Loss: 0.909814 | Val Loss: 0.519888 | LR: 5e-03
+Epoch [  40/ 200] | Train Loss: 0.929288 | Val Loss: 0.442576 | LR: 5e-03
+Epoch [  41/ 200] | Train Loss: 0.911946 | Val Loss: 0.505386 | LR: 5e-03
+Epoch [  42/ 200] | Train Loss: 0.899797 | Val Loss: 0.493307 | LR: 5e-03
+Epoch [  43/ 200] | Train Loss: 0.917031 | Val Loss: 0.465640 | LR: 5e-03
+Epoch [  44/ 200] | Train Loss: 0.910437 | Val Loss: 0.465311 | LR: 5e-03
+Epoch [  45/ 200] | Train Loss: 0.909183 | Val Loss: 0.615242 | LR: 5e-03
+Epoch [  46/ 200] | Train Loss: 0.903708 | Val Loss: 0.487273 | LR: 5e-03
+Epoch [  47/ 200] | Train Loss: 0.898894 | Val Loss: 0.529425 | LR: 5e-03
+Epoch [  48/ 200] | Train Loss: 0.894878 | Val Loss: 0.437713 | LR: 5e-03
+Epoch [  49/ 200] | Train Loss: 0.897408 | Val Loss: 0.444583 | LR: 5e-03
+Epoch [  50/ 200] | Train Loss: 0.882774 | Val Loss: 0.461122 | LR: 5e-03
+Epoch [  51/ 200] | Train Loss: 0.862020 | Val Loss: 0.451539 | LR: 5e-03
+Epoch [  52/ 200] | Train Loss: 0.857700 | Val Loss: 0.452759 | LR: 5e-03
+Epoch [  53/ 200] | Train Loss: 0.852167 | Val Loss: 0.452866 | LR: 5e-03
+Epoch [  54/ 200] | Train Loss: 0.886314 | Val Loss: 0.426743 | LR: 5e-03
+Epoch [  55/ 200] | Train Loss: 0.930932 | Val Loss: 0.485560 | LR: 5e-03
+Epoch [  56/ 200] | Train Loss: 0.874437 | Val Loss: 0.472664 | LR: 5e-03
+Epoch [  57/ 200] | Train Loss: 0.849405 | Val Loss: 0.531246 | LR: 5e-03
+Epoch [  58/ 200] | Train Loss: 0.843244 | Val Loss: 0.502366 | LR: 5e-03
+Epoch [  59/ 200] | Train Loss: 0.847485 | Val Loss: 0.483938 | LR: 5e-03
+Epoch [  60/ 200] | Train Loss: 0.816954 | Val Loss: 0.568771 | LR: 5e-03
+Epoch [  61/ 200] | Train Loss: 0.823757 | Val Loss: 0.441681 | LR: 5e-03
+Epoch [  62/ 200] | Train Loss: 0.834587 | Val Loss: 0.506982 | LR: 5e-03
+Epoch [  63/ 200] | Train Loss: 0.823983 | Val Loss: 0.535984 | LR: 5e-03
+Epoch [  64/ 200] | Train Loss: 0.820065 | Val Loss: 0.560823 | LR: 5e-03
+Epoch [  65/ 200] | Train Loss: 0.814854 | Val Loss: 0.552934 | LR: 5e-03
+Epoch [  66/ 200] | Train Loss: 0.820337 | Val Loss: 0.510055 | LR: 5e-03
+Epoch [  67/ 200] | Train Loss: 0.915082 | Val Loss: 0.493655 | LR: 5e-03
+Epoch [  68/ 200] | Train Loss: 0.867443 | Val Loss: 0.458258 | LR: 5e-03
+Epoch [  69/ 200] | Train Loss: 0.838425 | Val Loss: 0.595386 | LR: 5e-03
+Epoch [  70/ 200] | Train Loss: 0.820014 | Val Loss: 0.522310 | LR: 5e-03
+Epoch [  71/ 200] | Train Loss: 0.805301 | Val Loss: 0.586783 | LR: 5e-03
+Epoch [  72/ 200] | Train Loss: 0.805880 | Val Loss: 0.608365 | LR: 5e-03
+Epoch [  73/ 200] | Train Loss: 0.842782 | Val Loss: 0.556025 | LR: 5e-03
+Epoch [  74/ 200] | Train Loss: 0.868014 | Val Loss: 0.683257 | LR: 5e-03
+Epoch [  75/ 200] | Train Loss: 0.872939 | Val Loss: 0.633868 | LR: 5e-03
+Epoch [  76/ 200] | Train Loss: 0.857062 | Val Loss: 0.619465 | LR: 5e-03
+Epoch [  77/ 200] | Train Loss: 0.824785 | Val Loss: 0.507712 | LR: 5e-03
+Epoch [  78/ 200] | Train Loss: 0.811152 | Val Loss: 0.564995 | LR: 5e-03
+Epoch [  79/ 200] | Train Loss: 0.817006 | Val Loss: 0.474123 | LR: 5e-03
+Epoch [  80/ 200] | Train Loss: 0.818918 | Val Loss: 0.535263 | LR: 5e-03
+Epoch [  81/ 200] | Train Loss: 0.786587 | Val Loss: 0.459394 | LR: 5e-03
+Epoch [  82/ 200] | Train Loss: 0.784624 | Val Loss: 0.547505 | LR: 5e-03
+Epoch [  83/ 200] | Train Loss: 0.799407 | Val Loss: 0.500572 | LR: 5e-03
+Epoch [  84/ 200] | Train Loss: 0.832919 | Val Loss: 0.575365 | LR: 5e-03
+Epoch [  85/ 200] | Train Loss: 0.791032 | Val Loss: 0.476041 | LR: 5e-03
+Epoch [  86/ 200] | Train Loss: 0.797411 | Val Loss: 0.483666 | LR: 5e-03
+Epoch [  87/ 200] | Train Loss: 0.789483 | Val Loss: 0.469867 | LR: 5e-03
+Epoch [  88/ 200] | Train Loss: 0.803877 | Val Loss: 0.610673 | LR: 5e-03
+Epoch [  89/ 200] | Train Loss: 0.812151 | Val Loss: 0.550234 | LR: 5e-03
+Epoch [  90/ 200] | Train Loss: 0.836908 | Val Loss: 0.616937 | LR: 5e-03
+Epoch [  91/ 200] | Train Loss: 0.812249 | Val Loss: 0.538517 | LR: 5e-03
+Epoch [  92/ 200] | Train Loss: 0.814604 | Val Loss: 0.693372 | LR: 5e-03
+Epoch [  93/ 200] | Train Loss: 0.823366 | Val Loss: 0.494030 | LR: 5e-03
+Epoch [  94/ 200] | Train Loss: 0.777575 | Val Loss: 0.599734 | LR: 5e-03
+Epoch [  95/ 200] | Train Loss: 0.771664 | Val Loss: 0.493945 | LR: 5e-03
+Epoch [  96/ 200] | Train Loss: 0.762569 | Val Loss: 0.590753 | LR: 5e-03
+Epoch [  97/ 200] | Train Loss: 0.751396 | Val Loss: 0.487193 | LR: 5e-03
+Epoch [  98/ 200] | Train Loss: 0.736693 | Val Loss: 0.553043 | LR: 5e-03
+Epoch [  99/ 200] | Train Loss: 0.715459 | Val Loss: 0.531072 | LR: 5e-03
+Epoch [ 100/ 200] | Train Loss: 0.699606 | Val Loss: 0.518691 | LR: 5e-03
+Epoch [ 101/ 200] | Train Loss: 0.702558 | Val Loss: 0.514466 | LR: 5e-03
+Epoch [ 102/ 200] | Train Loss: 0.730461 | Val Loss: 0.484669 | LR: 5e-03
+Epoch [ 103/ 200] | Train Loss: 0.733421 | Val Loss: 0.549278 | LR: 5e-03
+Epoch [ 104/ 200] | Train Loss: 0.827002 | Val Loss: 0.429524 | LR: 5e-03
+Epoch [ 105/ 200] | Train Loss: 0.784339 | Val Loss: 0.620234 | LR: 5e-03
+Epoch [ 106/ 200] | Train Loss: 0.741003 | Val Loss: 0.568817 | LR: 5e-03
+Epoch [ 107/ 200] | Train Loss: 0.717823 | Val Loss: 0.504067 | LR: 5e-03
+Epoch [ 108/ 200] | Train Loss: 0.707108 | Val Loss: 0.623709 | LR: 5e-03
+Epoch [ 109/ 200] | Train Loss: 0.770610 | Val Loss: 0.468654 | LR: 5e-03
+Epoch [ 110/ 200] | Train Loss: 0.814020 | Val Loss: 0.824030 | LR: 5e-03
+Epoch [ 111/ 200] | Train Loss: 0.822792 | Val Loss: 0.483827 | LR: 5e-03
+Epoch [ 112/ 200] | Train Loss: 0.811456 | Val Loss: 0.551531 | LR: 5e-03
+Epoch [ 113/ 200] | Train Loss: 0.785771 | Val Loss: 0.597073 | LR: 5e-03
+Epoch [ 114/ 200] | Train Loss: 0.842632 | Val Loss: 0.562536 | LR: 5e-03
+Epoch [ 115/ 200] | Train Loss: 0.774468 | Val Loss: 0.497222 | LR: 5e-03
+Epoch [ 116/ 200] | Train Loss: 0.746862 | Val Loss: 0.574419 | LR: 5e-03
+Epoch [ 117/ 200] | Train Loss: 0.725168 | Val Loss: 0.779158 | LR: 5e-03
+Epoch [ 118/ 200] | Train Loss: 0.711530 | Val Loss: 1.051025 | LR: 5e-03
+Epoch [ 119/ 200] | Train Loss: 0.745612 | Val Loss: 0.623861 | LR: 5e-03
+Epoch [ 120/ 200] | Train Loss: 0.802941 | Val Loss: 0.601299 | LR: 5e-03
+Epoch [ 121/ 200] | Train Loss: 0.813674 | Val Loss: 0.639671 | LR: 5e-03
+Epoch [ 122/ 200] | Train Loss: 0.723251 | Val Loss: 0.644350 | LR: 5e-03
+Epoch [ 123/ 200] | Train Loss: 0.708814 | Val Loss: 1.030744 | LR: 5e-03
+Epoch [ 124/ 200] | Train Loss: 0.703425 | Val Loss: 0.794184 | LR: 5e-03
+Epoch [ 125/ 200] | Train Loss: 0.734363 | Val Loss: 0.506039 | LR: 5e-03
+Epoch [ 126/ 200] | Train Loss: 0.771579 | Val Loss: 1.011873 | LR: 5e-03
+Epoch [ 127/ 200] | Train Loss: 0.723451 | Val Loss: 0.772855 | LR: 5e-03
+Epoch [ 128/ 200] | Train Loss: 0.674688 | Val Loss: 0.811109 | LR: 5e-03
+Epoch [ 129/ 200] | Train Loss: 0.662818 | Val Loss: 0.896738 | LR: 5e-03
+Epoch [ 130/ 200] | Train Loss: 0.644160 | Val Loss: 0.885142 | LR: 5e-03
+Epoch [ 131/ 200] | Train Loss: 0.658371 | Val Loss: 0.950464 | LR: 5e-03
+Epoch [ 132/ 200] | Train Loss: 0.677528 | Val Loss: 0.818024 | LR: 5e-03
+Epoch [ 133/ 200] | Train Loss: 0.676057 | Val Loss: 0.774455 | LR: 5e-03
+Epoch [ 134/ 200] | Train Loss: 0.671477 | Val Loss: 0.751088 | LR: 5e-03
+Epoch [ 135/ 200] | Train Loss: 0.726366 | Val Loss: 0.629422 | LR: 5e-03
+Epoch [ 136/ 200] | Train Loss: 0.748985 | Val Loss: 0.455764 | LR: 5e-03
+Epoch [ 137/ 200] | Train Loss: 0.732085 | Val Loss: 0.611529 | LR: 5e-03
+Epoch [ 138/ 200] | Train Loss: 0.677443 | Val Loss: 0.496276 | LR: 5e-03
+Epoch [ 139/ 200] | Train Loss: 0.667213 | Val Loss: 0.539407 | LR: 5e-03
+Epoch [ 140/ 200] | Train Loss: 0.656634 | Val Loss: 0.517788 | LR: 5e-03
+Epoch [ 141/ 200] | Train Loss: 0.649904 | Val Loss: 0.453705 | LR: 5e-03
+Epoch [ 142/ 200] | Train Loss: 0.667126 | Val Loss: 0.461553 | LR: 5e-03
+Epoch [ 143/ 200] | Train Loss: 0.706059 | Val Loss: 0.509891 | LR: 5e-03
+Epoch [ 144/ 200] | Train Loss: 0.697782 | Val Loss: 0.748529 | LR: 5e-03
+Epoch [ 145/ 200] | Train Loss: 0.691872 | Val Loss: 0.424630 | LR: 5e-03
+Epoch [ 146/ 200] | Train Loss: 0.714647 | Val Loss: 0.534089 | LR: 5e-03
+Epoch [ 147/ 200] | Train Loss: 0.648477 | Val Loss: 0.504046 | LR: 5e-03
+Epoch [ 148/ 200] | Train Loss: 0.691675 | Val Loss: 0.497861 | LR: 5e-03
+Epoch [ 149/ 200] | Train Loss: 0.838721 | Val Loss: 0.637177 | LR: 5e-03
+Epoch [ 150/ 200] | Train Loss: 0.855135 | Val Loss: 0.598489 | LR: 5e-03
+Epoch [ 151/ 200] | Train Loss: 0.890569 | Val Loss: 0.634044 | LR: 5e-03
+Epoch [ 152/ 200] | Train Loss: 1.019323 | Val Loss: 0.762321 | LR: 5e-03
+Epoch [ 153/ 200] | Train Loss: 0.999346 | Val Loss: 0.572807 | LR: 5e-03
+Epoch [ 154/ 200] | Train Loss: 0.824842 | Val Loss: 0.474595 | LR: 5e-03
+Epoch [ 155/ 200] | Train Loss: 0.750933 | Val Loss: 0.688716 | LR: 5e-03
+Epoch [ 156/ 200] | Train Loss: 0.975274 | Val Loss: 0.531596 | LR: 5e-03
+Epoch [ 157/ 200] | Train Loss: 1.166959 | Val Loss: 0.486133 | LR: 5e-03
+Epoch [ 158/ 200] | Train Loss: 1.032978 | Val Loss: 0.566252 | LR: 5e-03
+Epoch [ 159/ 200] | Train Loss: 1.015179 | Val Loss: 0.548702 | LR: 5e-03
+Epoch [ 160/ 200] | Train Loss: 1.003779 | Val Loss: 0.540172 | LR: 5e-03
+Epoch [ 161/ 200] | Train Loss: 0.999561 | Val Loss: 0.548382 | LR: 5e-03
+Epoch [ 162/ 200] | Train Loss: 0.996301 | Val Loss: 0.545517 | LR: 5e-03
+Epoch [ 163/ 200] | Train Loss: 0.992062 | Val Loss: 0.539759 | LR: 5e-03
+Epoch [ 164/ 200] | Train Loss: 0.996144 | Val Loss: 0.537478 | LR: 5e-03
+Epoch [ 165/ 200] | Train Loss: 0.992150 | Val Loss: 0.593255 | LR: 5e-03
+Epoch [ 166/ 200] | Train Loss: 0.989755 | Val Loss: 0.536872 | LR: 5e-03
+Epoch [ 167/ 200] | Train Loss: 0.988477 | Val Loss: 0.541052 | LR: 5e-03
+Epoch [ 168/ 200] | Train Loss: 0.986735 | Val Loss: 0.516269 | LR: 5e-03
+Epoch [ 169/ 200] | Train Loss: 0.963458 | Val Loss: 0.515711 | LR: 5e-03
+Epoch [ 170/ 200] | Train Loss: 0.986124 | Val Loss: 0.520510 | LR: 5e-03
+Epoch [ 171/ 200] | Train Loss: 1.011356 | Val Loss: 0.486025 | LR: 5e-03
+Epoch [ 172/ 200] | Train Loss: 0.961721 | Val Loss: 0.599544 | LR: 5e-03
+Epoch [ 173/ 200] | Train Loss: 0.985286 | Val Loss: 0.499847 | LR: 5e-03
+Epoch [ 174/ 200] | Train Loss: 0.966347 | Val Loss: 0.552039 | LR: 5e-03
+Epoch [ 175/ 200] | Train Loss: 0.967992 | Val Loss: 0.528927 | LR: 5e-03
+Epoch [ 176/ 200] | Train Loss: 1.021006 | Val Loss: 0.528457 | LR: 5e-03
+Epoch [ 177/ 200] | Train Loss: 0.995962 | Val Loss: 0.518377 | LR: 5e-03
+Epoch [ 178/ 200] | Train Loss: 0.991508 | Val Loss: 0.554121 | LR: 5e-03
+Epoch [ 179/ 200] | Train Loss: 0.953079 | Val Loss: 0.540508 | LR: 5e-03
+Epoch [ 180/ 200] | Train Loss: 0.953368 | Val Loss: 0.512252 | LR: 5e-03
+Epoch [ 181/ 200] | Train Loss: 0.927807 | Val Loss: 0.560514 | LR: 5e-03
+Epoch [ 182/ 200] | Train Loss: 0.919521 | Val Loss: 0.760471 | LR: 5e-03
+Epoch [ 183/ 200] | Train Loss: 0.899773 | Val Loss: 0.530083 | LR: 5e-03
+Epoch [ 184/ 200] | Train Loss: 0.860291 | Val Loss: 0.537729 | LR: 5e-03
+Epoch [ 185/ 200] | Train Loss: 0.839209 | Val Loss: 0.507653 | LR: 5e-03
+Epoch [ 186/ 200] | Train Loss: 0.836999 | Val Loss: 0.520989 | LR: 5e-03
+Epoch [ 187/ 200] | Train Loss: 0.799664 | Val Loss: 0.686264 | LR: 5e-03
+Epoch [ 188/ 200] | Train Loss: 0.768311 | Val Loss: 0.480829 | LR: 5e-03
+Epoch [ 189/ 200] | Train Loss: 0.797780 | Val Loss: 0.636553 | LR: 5e-03
+Epoch [ 190/ 200] | Train Loss: 0.848226 | Val Loss: 0.576038 | LR: 5e-03
+Epoch [ 191/ 200] | Train Loss: 0.792562 | Val Loss: 0.465744 | LR: 5e-03
+Epoch [ 192/ 200] | Train Loss: 0.778491 | Val Loss: 0.621470 | LR: 5e-03
+Epoch [ 193/ 200] | Train Loss: 0.759729 | Val Loss: 0.498809 | LR: 5e-03
+Epoch [ 194/ 200] | Train Loss: 0.738364 | Val Loss: 0.472009 | LR: 5e-03
+Epoch [ 195/ 200] | Train Loss: 0.724210 | Val Loss: 0.595211 | LR: 5e-03
+Epoch [ 196/ 200] | Train Loss: 0.706076 | Val Loss: 0.485551 | LR: 5e-03
+Epoch [ 197/ 200] | Train Loss: 0.708869 | Val Loss: 0.534368 | LR: 5e-03
+Epoch [ 198/ 200] | Train Loss: 0.786021 | Val Loss: 0.639725 | LR: 5e-03
+Epoch [ 199/ 200] | Train Loss: 0.771483 | Val Loss: 0.622565 | LR: 5e-03
+Epoch [ 200/ 200] | Train Loss: 0.734642 | Val Loss: 0.809623 | LR: 5e-03
+Best Train Loss: 0.644160 at epoch 130
+Best Valid Loss: 0.424630 at epoch 145

@@ -1,0 +1,30 @@
+experiment:
+  seed: 36
+  device: "cuda:3"
+  wandb: False
+  wandb_api_key: ""
+  wandb_project_name: "SimJEB_GATr_mk2"
+
+dataset:
+  data_dir: "/data/SimJEB/"
+  max_epochs: 200  
+  train_sample_id: [21, 30, 38, 62, 8, 9, 15, 23, 6, 10, 22, 63, 14, 29, 35, 40, 19, 27, 28, 33]
+  valid_sample_id: [20, 4, 0, 12, 16]
+
+arch:
+  encoder:
+    in_mv_channel: 1
+    in_s_channel: 2
+  processor: 
+    hidden_mv_channel: 8
+    hidden_s_channel: 64
+    n_layers_gatr: 3
+    n_mlp_per_gatr : 3
+    n_attn_heads: 1
+  decoder:
+    out_mv_channel: 1
+    out_s_channel: 1
+
+scheduler:
+  initial_lr: 1.E-3
+  weight_decay: 0.0
