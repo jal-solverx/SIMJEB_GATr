@@ -1,6 +1,6 @@
 experiment:
   seed: 36
-  device: "cuda:2"
+  device: "cuda:1"
   wandb: False
   wandb_api_key: ""
   wandb_project_name: "SimJEB_vanilla GATr"
