@@ -1,0 +1,31 @@
+experiment:
+  seed: 36
+  device: "cuda:3"
+  wandb: False
+  wandb_api_key: ""
+  wandb_project_name: "vanilla_gotennet"
+
+dataset:
+  data_dir: "/data/SimJEB/"
+  max_epochs: 300  
+  train_sample_id: [21, 30, 38, 62, 8, 9, 15, 23, 6, 10, 22, 63, 14, 29, 35, 40, 19, 27, 28, 33]
+  valid_sample_id: [20, 4, 0, 12, 16]
+
+arch:
+  processor: 
+    hidden_dim: 192
+    n_layer_GATA: 12
+    n_rbf: 64
+    n_attn_heads: 8
+    max_angular_momentum: 2
+    aggregation_func: "add"
+    edge_refinement_dim: 768
+
+
+scheduler:
+  initial_lr: 2.E-4
+  lr_decay: 0.8
+  lr_patience: 30
+  gradient_clipping: 10
+  weight_decay: 0.01
+  dropout_rate: 0.1
