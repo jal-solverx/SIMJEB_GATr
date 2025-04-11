@@ -113,6 +113,9 @@ def encode_to_PGA(graph_data):
     
     # Concatenate the embeddings
     multivector = pos_PGA + curv_PGA + norm_PGA # (objects, 16)
+    # Set the scalar and pseudoscalar components to 0 since they aren't used here 
+    # multivector[:,0] = 0
+    # multivector[:, 15] = 0
 
     # Insert the channel and batch_size dimensions
     multivector = multivector.unsqueeze(0).unsqueeze(2) # (1, objects, 1, 16)

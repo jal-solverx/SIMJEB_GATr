@@ -34,7 +34,7 @@ class SelfAttention(nn.Module):
         # Store settings
         self.config = config
 
-        # Input normalization and linear layer
+        # Input normalization and linear layer (added by Jongann Lee)
         self.norm = EquiLayerNorm()
         self.in_linear = EquiLinear(
             in_mv_channels = config.in_mv_channels,

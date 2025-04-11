@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from gatr.layers import EquiLinear, GATrBlock, SelfAttentionConfig, MLPConfig
+from gatr.layers import EquiLinear, GATrBlock, GeoMLP, SelfAttentionConfig, MLPConfig
 from gatr.utils.tensors import construct_reference_multivector
 from utils import encode_to_PGA, extract_from_PGA
 
@@ -14,7 +14,7 @@ class GATrmk2(nn.Module):
     GATr: A modified version of the Geometric Algebra Transformer
 
     What's changed? Instead of using one GeoMLP layer with one GeoAttention layer, 
-    we will use around 3 GeoMLP layers for every Geo Attention layer
+    we will use around 2 GeoMLP layers for every Geo Attention layer
     """
     def __init__(
         self,
@@ -46,7 +46,10 @@ class GATrmk2(nn.Module):
         '''
 
         self.encoders = nn.ModuleList([
-            EquiLinear(in_mv_channels=self.in_mv_channel, out_mv_channels=self.hidden_mv_channel, in_s_channels=self.in_s_channel, out_s_channels= self.hidden_s_channel)
+            EquiLinear(in_mv_channels=self.in_mv_channel, 
+                       out_mv_channels=self.hidden_mv_channel, 
+                       in_s_channels=self.in_s_channel, 
+                       out_s_channels= self.hidden_s_channel)
             for _ in range(1)
         ])
         
@@ -57,7 +60,14 @@ class GATrmk2(nn.Module):
         '''
 
         self.processor = nn.ModuleList([
-            GATrBlock(
+            GeoMLP(MLPConfig(
+                    mv_channels = (self.hidden_mv_channel, 2 * self.hidden_mv_channel, self.hidden_mv_channel),
+                    s_channels = (self.hidden_s_channel, 2 * self.hidden_s_channel, self.hidden_s_channel),
+                    dropout_prob=0.0
+                )
+            ) for _ in range(self.n_mlp_per_gatr)]
+            +
+            [GATrBlock(
                 mv_channels=self.hidden_mv_channel,
                 s_channels=self.hidden_s_channel,
                 n_mlp = self.n_mlp_per_gatr,
@@ -76,8 +86,8 @@ class GATrmk2(nn.Module):
                 ),
                 dropout_prob=0.0
             )
-            for _ in range(self.n_layers_gatr)
-        ])
+            for _ in range(self.n_layers_gatr)]
+        )
 
 
         '''
@@ -86,7 +96,11 @@ class GATrmk2(nn.Module):
         '''
 
         self.decoders = nn.ModuleList([
-            EquiLinear(in_mv_channels=self.hidden_mv_channel, out_mv_channels=self.out_mv_channel, in_s_channels = self.hidden_s_channel, out_s_channels=self.out_s_channel)
+            EquiLinear(
+                in_mv_channels=self.hidden_mv_channel, 
+                out_mv_channels=self.out_mv_channel, 
+                in_s_channels = self.hidden_s_channel, 
+                out_s_channels=self.out_s_channel)
             for _ in range(1)
         ])
 
