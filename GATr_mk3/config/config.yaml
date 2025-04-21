@@ -1,9 +1,9 @@
 experiment:
   seed: 36
-  device: "cuda:3"
-  wandb: False
-  wandb_api_key: ""
-  wandb_project_name: "SimJEB_GATr_mk2"
+  device: "cuda:2"
+  wandb: True
+  wandb_api_key: "899079d77b6e3f0774afe79065ae85b86ac909d2"
+  wandb_project_name: "SimJEB_GATr_mk3"
 
 dataset:
   data_dir: "/data/SimJEB/"
@@ -17,8 +17,8 @@ arch:
     in_s_channel: 2
   processor: 
     hidden_mv_channel: 8
-    hidden_s_channel: 32
-    n_layers_gatr: 3
+    hidden_s_channel: 16
+    n_layers_gatr: 6
     n_mlp_per_gatr : 2
     n_attn_heads: 1
   decoder:
@@ -26,5 +26,5 @@ arch:
     out_s_channel: 1
 
 scheduler:
-  initial_lr: 1.E-4
+  initial_lr: 3.E-4
   weight_decay: 0.0

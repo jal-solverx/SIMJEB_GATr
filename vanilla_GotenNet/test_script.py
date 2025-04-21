@@ -7,7 +7,7 @@ import numpy as np
 from hydra import compose, initialize
 from omegaconf import DictConfig, OmegaConf
 from torch_geometric.data import Data
-from utils import encode_to_PGA, extract_from_PGA
+from utils import encode_for_goten
 from train import Trainer
 
 
@@ -44,15 +44,15 @@ x = torch.tensor([
     ], dtype=torch.float)
 
 bc = torch.tensor([
-        [0,0],
-        [1,0],
-        [0,1]
-    ], dtype=torch.float)
+        [0],
+        [1],
+        [0]
+    ], dtype=torch.long)
 
 edge_index = torch.tensor([
         [0, 0],
         [1, 2]
-    ], dtype=torch.float)
+    ], dtype=torch.long)
 
 force = torch.tensor([
     [1,2,1],
@@ -61,20 +61,22 @@ force = torch.tensor([
 ])
 #bc = torch.cat([force, bc], dim = -1)
 
-graph = Data(x=x, bc=bc, edge_index=edge_index)
+batch = torch.tensor([
+    0, 0, 0
+])
+
+graph = Data(x=x, bc=bc, edge_index=edge_index, batch = batch)
 graph = graph.to(trainer.device)
 
 print("Original graph node features (x):\n", graph.x)
 print("Original graph boundary cond (bc):\n", graph.bc)
 print("Edge index:\n", graph.edge_index, "\n")
 
-encoded_multivector, encoded_scalar = encode_to_PGA(graph)
-print("Encoded multivector shape:", encoded_multivector.shape)
-print("Encoded multivector (squeezed):\n", encoded_multivector.squeeze(0).squeeze(1), "\n")
+# encoded_atomic_num, encoded_edge_diff, encoded_edge_vec = encode_for_goten(graph)
+# print("Encoded atomic_number:", encoded_atomic_num)
+# print("Encoded edge difference:\n", encoded_edge_diff, "\n")
+# print("Encoded edge vector: ", encoded_edge_vec)
 
-decoded_graph = extract_from_PGA(encoded_multivector, encoded_scalar, graph)
-print("Decoded graph node features (x):\n", decoded_graph.x)
-print("Decoded graph boundary cond (bc):\n", decoded_graph.bc)
 
 # With the encoder and the decoder tested, let's now define the model and check the forward pass
 
@@ -82,8 +84,8 @@ trainer.make_model_components(cfg)
 trainer.model.to(trainer.device)
 
 with torch.no_grad():
-    output = trainer.model(graph)
-    print("Output features (x):", output.x)
-    print("Output boundary condition:", output.bc)
+    h,X = trainer.model(graph)
+    print("Output scalar feature shape:", h.shape)
+    print("Output steerable feature shape:", X.shape)
 
 

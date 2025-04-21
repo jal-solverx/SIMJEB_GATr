@@ -1,0 +1,15 @@
+{"time":"2025-04-16T23:57:35.329606228+09:00","level":"INFO","msg":"stream: starting","core version":"0.19.2","symlink path":"/data/temp_Jongann/SimJEB_GATr/baseline_EGNN/wandb/run-20250416_235735-wr000hri/logs/debug-core.log"}
+{"time":"2025-04-16T23:57:35.544465739+09:00","level":"INFO","msg":"created new stream","id":"wr000hri"}
+{"time":"2025-04-16T23:57:35.544504161+09:00","level":"INFO","msg":"stream: started","id":"wr000hri"}
+{"time":"2025-04-16T23:57:35.544533967+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"wr000hri"}
+{"time":"2025-04-16T23:57:35.54619258+09:00","level":"INFO","msg":"sender: started","stream_id":"wr000hri"}
+{"time":"2025-04-16T23:57:35.546242894+09:00","level":"INFO","msg":"handler: started","stream_id":"wr000hri"}
+{"time":"2025-04-16T23:57:35.959339876+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-17T03:42:35.758733409+09:00","level":"INFO","msg":"stream: closing","id":"wr000hri"}
+{"time":"2025-04-17T03:42:35.758851379+09:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-04-17T03:42:35.759879337+09:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-04-17T03:42:36.657873245+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-04-17T03:42:37.338246984+09:00","level":"INFO","msg":"handler: closed","stream_id":"wr000hri"}
+{"time":"2025-04-17T03:42:37.338270538+09:00","level":"INFO","msg":"writer: Close: closed","stream_id":"wr000hri"}
+{"time":"2025-04-17T03:42:37.338280547+09:00","level":"INFO","msg":"sender: closed","stream_id":"wr000hri"}
+{"time":"2025-04-17T03:42:37.34023349+09:00","level":"INFO","msg":"stream: closed","id":"wr000hri"}

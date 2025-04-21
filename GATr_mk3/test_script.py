@@ -35,24 +35,26 @@ print(OmegaConf.to_yaml(cfg))
 #Test the encoder and the decoder
 
 
-# Let's first test a very simple graph and see how it handles it
+# Let's first test a very simple square graph and see how it handles it
 
 x = torch.tensor([
-        [1,2,3,   4,5,6,   7,8,9],
-        [9,8,7,   6,5,4,   3,2,1],
-        [10,10,10,2,3,4,   4,5,6]
+        [0,-1,-1,   0,0,0,   0,0,0],
+        [0,1,-1,   0,0,0,   0,0,0],
+        [0,1,1,   0,0,0,   0,0,0],
+        [0,-1,1,   0,0,0,   0,0,0]
     ], dtype=torch.float)
 
 bc = torch.tensor([
-        [0,0],
         [1,0],
-        [0,1]
+        [1,0],
+        [1,0],
+        [1,0]
     ], dtype=torch.float)
 
 edge_index = torch.tensor([
-        [0, 0],
-        [1, 2]
-    ], dtype=torch.float)
+        [0, 1, 2, 3],
+        [1, 2, 3, 0]
+    ], dtype=torch.long)
 
 force = torch.tensor([
     [1,2,1],
@@ -72,18 +74,25 @@ encoded_multivector, encoded_scalar = encode_to_PGA(graph)
 print("Encoded multivector shape:", encoded_multivector.shape)
 print("Encoded multivector (squeezed):\n", encoded_multivector.squeeze(0).squeeze(1), "\n")
 
-decoded_graph = extract_from_PGA(encoded_multivector, encoded_scalar, graph)
-print("Decoded graph node features (x):\n", decoded_graph.x)
-print("Decoded graph boundary cond (bc):\n", decoded_graph.bc)
+# decoded_graph = extract_from_PGA(encoded_multivector, encoded_scalar, graph)
+# print("Decoded graph node features (x):\n", decoded_graph.x)
+# print("Decoded graph boundary cond (bc):\n", decoded_graph.bc)
 
 # With the encoder and the decoder tested, let's now define the model and check the forward pass
 
 trainer.make_model_components(cfg)
 trainer.model.to(trainer.device)
 
+# filename = "./ckpt/best_train_loss.pt"
+# ckpt = torch.load(filename)
+
+# trainer.load_model(ckpt = ckpt)
+
+# trainer.model.eval()
+
 with torch.no_grad():
     output = trainer.model(graph)
-    print("Output features (x):", output.x)
-    print("Output boundary condition:", output.bc)
+    print("Output graph y.x = ", output.x)
+    print("Output graph y.bc = ", output.bc)
 
 

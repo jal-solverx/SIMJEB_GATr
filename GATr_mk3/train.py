@@ -28,14 +28,19 @@ class Trainer():
                 
         if not os.path.exists(self.ckpt_path):
             os.makedirs(self.ckpt_path)
-
+            
+        if cfg.experiment.wandb:
+            os.environ['WANDB_API_KEY'] = cfg.experiment.wandb_api_key
+            wandb.init(project = cfg.experiment.wandb_project_name)
+        
         train_graph_list, valid_graph_list = self.process_data(cfg)
 
-        self.train_loader = GraphLoader(train_graph_list, batch_size=1, shuffle=shuffle, pin_memory = True, num_workers = 4) # default는 True
-        self.valid_loader = GraphLoader(valid_graph_list, batch_size=1, shuffle=False, pin_memory = True, num_workers = 4)  
+        self.train_loader = GraphLoader(train_graph_list, batch_size=1, shuffle=shuffle) # default는 True
+        self.valid_loader = GraphLoader(valid_graph_list, batch_size=1, shuffle=False)  
 
         #self.make_model_components(cfg)
-        
+
+
         self.min_train_loss = 1e+3
         self.min_val_loss = 1e+3
 
@@ -85,6 +90,19 @@ class Trainer():
                 force = force.expand(N, -1)  # [N, 3]으로 확장
                 # TODO: Encode the force information in to the graph
 
+                # Calculate the edge vectors and turn them into edge features
+                # source, destination = edge_index # (2, num_edges)
+                # edge_vectors = coords[destination] - coords[source] # (num_edges, 3)
+                # node_edge_v = torch.zeros(N, 3)
+                # for index in range(N):
+                #     out_mask = (source == index)
+                #     in_mask = (destination == index)
+                #     out_edge_vectors = edge_vectors[out_mask]
+                #     in_edge_vectors = -edge_vectors[in_mask]
+                #     node_edge_vectors = torch.cat([out_edge_vectors, in_edge_vectors], dim=0) # (num_edges from that node, 3)
+                #     node_edge_vectors = node_edge_vectors / ((torch.linalg.norm(node_edge_vectors, dim = 1, keepdim = True))**2)
+                #     node_edge_v[index, :] = node_edge_vectors.sum(dim = 0)
+
                 x = torch.cat([coords, curv, norm], dim=-1) # [N, 9]
                 bc = torch.cat([rbe2_onehot, rbe3_onehot], dim = -1) # [N, 2]
                 # bc = torch.cat([force, rbe2_onehot, rbe3_onehot], dim=-1) # [N, 5]
@@ -130,6 +148,19 @@ class Trainer():
                 force = (force - self.min_force) / (self.max_force - self.min_force)
                 force = force.expand(N, -1)  # [N, 3]으로 확장
 
+                 # Calculate the edge vectors and turn them into edge features
+                # source, destination = edge_index # (2, num_edges)
+                # edge_vectors = coords[destination] - coords[source] # (num_edges, 3)
+                # node_edge_v = torch.zeros(N, 3)
+                # for index in range(N):
+                #     out_mask = (source == index)
+                #     in_mask = (destination == index)
+                #     out_edge_vectors = edge_vectors[out_mask]
+                #     in_edge_vectors = -edge_vectors[in_mask]
+                #     node_edge_vectors = torch.cat([out_edge_vectors, in_edge_vectors], dim=0) # (num_edges from that node, 3)
+                #     node_edge_vectors = node_edge_vectors / ((torch.linalg.norm(node_edge_vectors, dim = 1, keepdim = True))**2)
+                #     node_edge_v[index, :] = node_edge_vectors.sum(dim = 0)
+
                 x = torch.cat([coords, curv, norm], dim=-1) # [N, 9]
                 bc = torch.cat([rbe2_onehot, rbe3_onehot], dim = -1) # [N, 2]
                 # bc = torch.cat([force, rbe2_onehot, rbe3_onehot], dim=-1) # [N, 5]
@@ -146,19 +177,19 @@ class Trainer():
         print('# of valid dataset', len(valid_graph_list))
 
         coords_train = torch.cat(coords_for_norm)
-        curvs_train = torch.cat(curvs_for_norm)
-        norms_train = torch.cat(normals_for_norm)
+        # curvs_train = torch.cat(curvs_for_norm)
+        # norms_train = torch.cat(normals_for_norm)
 
         targets_train = torch.cat(targets_for_norm)
 
         self.coords_max = torch.max(coords_train)
         self.coords_min = torch.min(coords_train)
         
-        self.curv_mean = torch.mean(curvs_train)
-        self.curv_std = torch.std(curvs_train)
+        # self.curv_mean = torch.mean(curvs_train)
+        # self.curv_std = torch.std(curvs_train)
 
-        self.norm_mean = torch.mean(norms_train)
-        self.norm_std = torch.std(norms_train)
+        # self.norm_mean = torch.mean(norms_train)
+        # self.norm_std = torch.std(norms_train)
 
         self.target_mean = torch.mean(targets_train)
         self.target_std = torch.std(targets_train)
@@ -168,25 +199,25 @@ class Trainer():
             data.y = (data.y - self.target_mean) / self.target_std
 
             data.x[:, :3] = (data.x[:, :3] - self.coords_min) / (self.coords_max - self.coords_min)
-            data.x[:, 3:6] = (data.x[:, 3:6] - self.curv_mean) / self.curv_std
+            # data.x[:, 3:6] = (data.x[:, 3:6] - self.curv_mean) / self.curv_std
             #data.x[:, 6:9] = (data.x[:, 6:9] - self.norm_mean) / self.norm_std
-            data.x[:, 6:9] = nn.functional.normalize(data.x[:, 6:9], p=2.0, dim = -1) # I have been told this is already normalized
+            # data.x[:, 6:9] = nn.functional.normalize(data.x[:, 6:9], p=2.0, dim = -1) # I have been told this is already normalized
 
             # data.bc = (data.bc - self.target_mean) / self.target_std
 
-            data.edge_weight = calculate_edge_features(data.x[:, 0:3], data.edge_index)
+            # data.x[:, 3:6] = calculate_edge_features(data.x[:, 0:3], data.edge_index)
 
         for data in valid_graph_list:
             data.y = (data.y - self.target_mean) / self.target_std
 
             data.x[:, :3] = (data.x[:, :3] - self.coords_min) / (self.coords_max - self.coords_min)
-            data.x[:, 3:6] = (data.x[:, 3:6] - self.curv_mean) / self.curv_std
+            # data.x[:, 3:6] = (data.x[:, 3:6] - self.curv_mean) / self.curv_std
             # data.x[:, 6:9] = (data.x[:, 6:9] - self.norm_mean) / self.norm_std
-            data.x[:, 6:9] = nn.functional.normalize(data.x[:, 6:9], p=2.0, dim = -1) # I have been told this is already normalized
+            # data.x[:, 6:9] = nn.functional.normalize(data.x[:, 6:9], p=2.0, dim = -1) # I have been told this is already normalized
 
             # data.bc = (data.bc - self.target_mean) / self.target_std
 
-            data.edge_weight = calculate_edge_features(data.x[:, 0:3], data.edge_index)
+            # data.x[:, 3:6] = calculate_edge_features(data.x[:, 0:3], data.edge_index)              
 
         self.input_dim = x.shape[1]
         self.bc_dim = bc.shape[1]

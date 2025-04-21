@@ -11,6 +11,7 @@ from torch import Tensor
 from torch_geometric.nn import MessagePassing
 from torch_geometric.typing import OptTensor
 from torch_geometric.utils import scatter, softmax
+from torch_geometric.data import Data
 
 # Local application/library specific imports
 # import gotennet.utils as utils
@@ -27,6 +28,7 @@ from gotennet.models.components.layers import (
     str2act,
     str2basis,
 )
+from utils import encode_for_goten
 
 # log = utils.get_logger(__name__)
 
@@ -174,7 +176,7 @@ class GATA(MessagePassing):
             update_info["lin_ln"] = 2
 
         self.update_info = update_info
-        log.info(f"Edge updates: {update_info}")
+        # log.info(f"Edge updates: {update_info}")
 
         self.dropout = dropout
         self.n_atom_basis = n_atom_basis
@@ -810,6 +812,10 @@ class GotenNet(nn.Module):
 
         self.n_atom_basis = self.hidden_dim = n_atom_basis
         self.n_interactions = n_interactions
+
+        if cutoff_fn is None:
+            cutoff_fn = CosineCutoff(5.0)
+
         self.cutoff_fn = cutoff_fn
         self.cutoff = cutoff_fn.cutoff
 
@@ -917,7 +923,7 @@ class GotenNetWrapper(GotenNet):
         self.reset_parameters()
 
 
-    def forward(self, inputs: Mapping[str, Tensor]) -> Tuple[Tensor, Tensor]:
+    def forward(self, inputs: Data) -> Tuple[Tensor, Tensor]:
         """
         Compute atomic representations/embeddings.
 
@@ -934,6 +940,18 @@ class GotenNetWrapper(GotenNet):
                 - Atomic representation [num_nodes, hidden_dims]
                 - High-degree steerable features [num_nodes, (L_max ** 2) - 1, hidden_dims]
         """
-        atomic_numbers, pos, batch = inputs.z, inputs.pos, inputs.batch
-        edge_index, edge_diff, edge_vec = self.distance(pos, batch)
-        return super().forward(atomic_numbers, edge_index, edge_diff, edge_vec)
+        atomic_numbers = inputs.bc.squeeze(1)
+        pos = inputs.x[:, :3]
+        edge_index = inputs.edge_index
+        # batch = torch.ones(pos.shape[0], dtype=torch.long, device=pos.device)
+        batch = inputs.batch
+        
+
+        edge_vec = pos[edge_index[0]] - pos[edge_index[1]]
+
+        edge_weight = torch.norm(edge_vec, dim=-1)
+
+        h, X = super().forward(atomic_numbers, edge_index, edge_weight, edge_vec)
+        pooled_h = torch.mean(h, dim = 1)
+
+        return pooled_h, X

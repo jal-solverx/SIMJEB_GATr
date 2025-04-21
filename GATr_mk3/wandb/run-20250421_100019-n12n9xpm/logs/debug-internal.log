@@ -1,0 +1,16 @@
+{"time":"2025-04-21T10:00:19.881219415+09:00","level":"INFO","msg":"stream: starting","core version":"0.19.2","symlink path":"/data/temp_Jongann/SimJEB_GATr/GATr_mk3/wandb/run-20250421_100019-n12n9xpm/logs/debug-core.log"}
+{"time":"2025-04-21T10:00:20.209651089+09:00","level":"INFO","msg":"created new stream","id":"n12n9xpm"}
+{"time":"2025-04-21T10:00:20.209695032+09:00","level":"INFO","msg":"stream: started","id":"n12n9xpm"}
+{"time":"2025-04-21T10:00:20.211250486+09:00","level":"INFO","msg":"handler: started","stream_id":"n12n9xpm"}
+{"time":"2025-04-21T10:00:20.211301631+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"n12n9xpm"}
+{"time":"2025-04-21T10:00:20.21139222+09:00","level":"INFO","msg":"sender: started","stream_id":"n12n9xpm"}
+{"time":"2025-04-21T10:00:20.621073159+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-21T10:01:27.724866228+09:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-04-21T10:02:26.593463922+09:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-04-21T10:02:27.909465322+09:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-04-21T10:02:39.336036865+09:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-04-21T10:02:41.103967435+09:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-04-21T10:03:45.954085828+09:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-04-21T10:03:46.670596111+09:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-04-21T10:04:07.926549257+09:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-04-21T10:05:17.460222686+09:00","level":"INFO","msg":"Pausing system monitor"}

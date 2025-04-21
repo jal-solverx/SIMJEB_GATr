@@ -33,5 +33,5 @@ trainer.make_model_components(cfg)
 
 trainer.train(cfg)
 
-# nohup python train_gatr.py > output.log 2>&1 &
+# nohup python train_goten.py > output.log 2>&1 &
 # Use the above comand to run

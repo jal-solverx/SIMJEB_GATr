@@ -1,0 +1,7 @@
+{"time":"2025-04-16T11:09:17.1611079+09:00","level":"INFO","msg":"stream: starting","core version":"0.19.2","symlink path":"/data/temp_Jongann/SimJEB_GATr/baseline_EGNN/wandb/run-20250416_110916-wd0wrncu/logs/debug-core.log"}
+{"time":"2025-04-16T11:09:17.36605712+09:00","level":"INFO","msg":"created new stream","id":"wd0wrncu"}
+{"time":"2025-04-16T11:09:17.366120078+09:00","level":"INFO","msg":"stream: started","id":"wd0wrncu"}
+{"time":"2025-04-16T11:09:17.366134795+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"wd0wrncu"}
+{"time":"2025-04-16T11:09:17.366168878+09:00","level":"INFO","msg":"handler: started","stream_id":"wd0wrncu"}
+{"time":"2025-04-16T11:09:17.366247084+09:00","level":"INFO","msg":"sender: started","stream_id":"wd0wrncu"}
+{"time":"2025-04-16T11:09:17.833373444+09:00","level":"INFO","msg":"Starting system monitor"}

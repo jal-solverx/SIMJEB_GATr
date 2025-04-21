@@ -30,6 +30,11 @@ class Trainer():
         if not os.path.exists(self.ckpt_path):
             os.makedirs(self.ckpt_path)
 
+        if cfg.experiment.wandb:
+            os.environ['WANDB_API_KEY'] = cfg.experiment.wandb_api_key
+            wandb.init(project = cfg.experiment.wandb_project_name)
+
+
         train_graph_list, valid_graph_list = self.process_data(cfg)
 
         self.train_loader = GraphLoader(train_graph_list, batch_size=1, shuffle=shuffle, pin_memory = True, num_workers = 4) # default는 True
@@ -203,10 +208,12 @@ class Trainer():
             n_atom_basis = cfg.arch.processor.hidden_dim,
             n_interactions = cfg.arch.processor.n_layers_GATA,
             n_rbf = cfg.arch.processor.n_rbf,
+            max_z = cfg.arch.processor.max_z,
             num_heads = cfg.arch.processor.n_attn_heads,
             lmax = cfg.arch.processor.max_angular_momentum,
             aggr = cfg.arch.processor.aggregation_func,
-            evec_dim = cfg.arch.processor.edge_refinement_dim
+            evec_dim = cfg.arch.processor.edge_refinement_dim,
+            edge_updates = 'linw'
             
          ).to(self.device)
 
@@ -228,8 +235,7 @@ class Trainer():
                 graph = graph.to(self.device, non_blocking = True)
                 # result_graph = self.model(graph)
                 # pred = result_graph.bc.squeeze(-1)
-                pred = self.model(graph)
-                pred = pred.squeeze(-1)
+                pred, _ = self.model(graph)
                 y = graph.y.flatten()
                 loss = self.criterion(pred, y)
                 loss.backward()
@@ -260,8 +266,7 @@ class Trainer():
             graph = graph.to(self.device, non_blocking = True)
             # result_graph = self.model(graph)
             # pred = result_graph.bc.squeeze(-1)
-            pred = self.model(graph)
-            pred = pred.squeeze(-1)
+            pred, _ = self.model(graph)
             y = graph.y.flatten()
             loss = self.criterion(pred, y)
             valid_loss += loss.item()

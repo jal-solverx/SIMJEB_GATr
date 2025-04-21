@@ -1,0 +1,10 @@
+{"time":"2025-04-16T15:02:41.238080629+09:00","level":"INFO","msg":"stream: starting","core version":"0.19.2","symlink path":"/data/temp_Jongann/SimJEB_GATr/GATr_mk3/wandb/run-20250416_150240-d7x0v2np/logs/debug-core.log"}
+{"time":"2025-04-16T15:02:41.950753193+09:00","level":"INFO","msg":"created new stream","id":"d7x0v2np"}
+{"time":"2025-04-16T15:02:41.950802014+09:00","level":"INFO","msg":"stream: started","id":"d7x0v2np"}
+{"time":"2025-04-16T15:02:41.950850795+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"d7x0v2np"}
+{"time":"2025-04-16T15:02:41.950867016+09:00","level":"INFO","msg":"handler: started","stream_id":"d7x0v2np"}
+{"time":"2025-04-16T15:02:41.950897231+09:00","level":"INFO","msg":"sender: started","stream_id":"d7x0v2np"}
+{"time":"2025-04-16T15:02:42.485362119+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-16T16:52:58.273012152+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": context deadline exceeded"}
+{"time":"2025-04-16T19:19:05.80068842+09:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/minseok_park_solverx-solverx/SimJEB_GATr_mk3/d7x0v2np/file_stream\": dial tcp: lookup api.wandb.ai on 127.0.0.53:53: read udp 127.0.0.1:37403->127.0.0.53:53: i/o timeout"}
+{"time":"2025-04-16T19:34:42.296584252+09:00","level":"ERROR","msg":"monitor: gpu: error sampling metrics: rpc error: code = Unavailable desc = error reading from server: read tcp 127.0.0.1:47306->127.0.0.1:41509: read: connection timed out"}

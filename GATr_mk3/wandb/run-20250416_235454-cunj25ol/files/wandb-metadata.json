@@ -1,0 +1,60 @@
+{
+  "os":  "Linux-5.15.0-117-generic-x86_64-with-glibc2.35",
+  "python":  "CPython 3.11.10",
+  "startedAt":  "2025-04-16T14:54:54.425659Z",
+  "program":  "/data/temp_Jongann/SimJEB_GATr/GATr_mk3/train_gatr.py",
+  "codePath":  "GATr_mk3/train_gatr.py",
+  "git":  {
+    "remote":  "https://github.com/jal-solverx/SIMJEB_GATr.git",
+    "commit":  "70eb61eaed9e82f1c6b014a8982c31b789111c92"
+  },
+  "email":  "jongannlee@solverx.ai",
+  "root":  "/data/temp_Jongann/SimJEB_GATr/GATr_mk3",
+  "host":  "gpu-1",
+  "executable":  "/home/ubuntu/miniforge3/envs/JHL_env/bin/python",
+  "codePathLocal":  "train_gatr.py",
+  "cpu_count":  48,
+  "cpu_count_logical":  48,
+  "gpu":  "NVIDIA A100-SXM4-80GB",
+  "gpu_count":  4,
+  "disk":  {
+    "/":  {
+      "total":  "207929917440",
+      "used":  "193450668032"
+    }
+  },
+  "memory":  {
+    "total":  "950730883072"
+  },
+  "cpu":  {
+    "count":  48,
+    "countLogical":  48
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA A100-SXM4-80GB",
+      "memoryTotal":  "85899345920",
+      "cudaCores":  6912,
+      "architecture":  "Ampere"
+    },
+    {
+      "name":  "NVIDIA A100-SXM4-80GB",
+      "memoryTotal":  "85899345920",
+      "cudaCores":  6912,
+      "architecture":  "Ampere"
+    },
+    {
+      "name":  "NVIDIA A100-SXM4-80GB",
+      "memoryTotal":  "85899345920",
+      "cudaCores":  6912,
+      "architecture":  "Ampere"
+    },
+    {
+      "name":  "NVIDIA A100-SXM4-80GB",
+      "memoryTotal":  "85899345920",
+      "cudaCores":  6912,
+      "architecture":  "Ampere"
+    }
+  ],
+  "cudaVersion":  "12.2"
+}

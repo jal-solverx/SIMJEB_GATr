@@ -20,7 +20,6 @@ def get_gnn_norm(norm_type):
         return Identity
 
 
-
 # Layers that were included in the original code
 
 class GATv2(nn.Module):

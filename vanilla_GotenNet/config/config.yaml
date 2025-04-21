@@ -1,8 +1,8 @@
 experiment:
   seed: 36
-  device: "cuda:3"
+  device: "cuda:2"
   wandb: False
-  wandb_api_key: ""
+  wandb_api_key: "899079d77b6e3f0774afe79065ae85b86ac909d2"
   wandb_project_name: "vanilla_gotennet"
 
 dataset:
@@ -13,13 +13,14 @@ dataset:
 
 arch:
   processor: 
-    hidden_dim: 192
-    n_layer_GATA: 12
-    n_rbf: 64
+    hidden_dim: 64
+    n_layers_GATA: 4
+    n_rbf: 32
+    max_z: 4
     n_attn_heads: 8
     max_angular_momentum: 2
     aggregation_func: "add"
-    edge_refinement_dim: 768
+    edge_refinement_dim: 256
 
 
 scheduler:

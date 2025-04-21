@@ -1565,6 +1565,8 @@ class TensorLayerNorm(nn.Module):
 
 class Distance(nn.Module):
     """
+    UPDATE: Simplified to use the existing graph structure by Jongann Lee 20250416
+    
     Compute edge distances and vectors between nodes within a cutoff radius.
 
     Uses torch_cluster.radius_graph to find neighbors.
@@ -1674,6 +1676,7 @@ class NodeInit(MessagePassing):
     def message(self, h_src_j, r0_ij_feat):
         return h_src_j * r0_ij_feat
 
+        
 class EdgeInit(MessagePassing):
     """
     Edge initialization layer for message passing networks.

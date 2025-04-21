@@ -3,6 +3,7 @@ import torch
 from scipy.spatial.transform import Rotation
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader as GraphLoader
+from torch_geometric.nn import MessagePassing
 from gatr.interface import (
     embed_point,
     embed_scalar,
@@ -64,12 +65,74 @@ def calculate_edge_features(x, edge_index):
     dxyz = node1 - node2  
     
     # 각 엣지에 대해 L2 norm(유클리드 거리)를 계산
-    distance = torch.norm(dxyz, dim=1).unsqueeze(-1)
+    distance = torch.norm(dxyz, dim=1, keepdim = True)
+
+    # Add a small epsilon for numerical stability to avoid division by zero.
+    epsilon = 1e-8
     
-    edge_features = torch.cat([dxyz, distance], dim=-1) # [M, 4]
+    # Divide the difference vector by the squared distance (i.e. elementwise division)
+    norm_dxyz = dxyz / (distance ** 2 + epsilon)
     
+    # edge_features = torch.cat([dxyz, distance], dim=-1) # [M, 4]
+    edge_features = norm_dxyz
+
     return edge_features
 
+class AggregateEdgeFeatures(MessagePassing):
+    def __init__(self, aggr: str = 'add'):
+        super().__init__(aggr=aggr)
+
+    def forward(self, x: torch.Tensor, edge_index: torch.Tensor) -> torch.Tensor:
+        """
+        Aggregates edge features for each node.
+        
+        Parameters
+        ----------
+        x : torch.Tensor
+            Node coordinates with shape [num_nodes, 3].
+        edge_index : torch.Tensor
+            Edge index of shape [2, num_edges]. Assumes that edge_index[0] is the source and
+            edge_index[1] is the target.
+        
+        Returns
+        -------
+        torch.Tensor
+            For each node, the sum of the edge feature vectors (shape [num_nodes, 3]). The 
+            feature vector for an edge is computed as:
+                (neighbor - node) / (||neighbor - node||² + epsilon)
+            For incoming edges the sign is flipped so that all contributions point outwards.
+        """
+        # First, aggregate messages using the given edge_index. 
+        # For an edge from node i to j, we compute: (x_j - x_i) / (||x_j - x_i||² + eps)
+        msg_out = self.propagate(edge_index, x=x)  # Aggregates per target node
+        
+        # Sum the outgoing and incoming contributions for each node
+        return msg_out
+
+    def message(self, x_i: torch.Tensor, x_j: torch.Tensor) -> torch.Tensor:
+        """
+        Computes the message for a given edge.
+        
+        Parameters
+        ----------
+        x_i : torch.Tensor
+            The features for the target node of shape [num_edges, 3].
+        x_j : torch.Tensor
+            The features for the source node of shape [num_edges, 3].
+        
+        Returns
+        -------
+        torch.Tensor
+            The computed edge feature vector with shape [num_edges, 3].
+        """
+        diff = x_j - x_i
+        eps = 1e-8
+        norm_sq = torch.sum(diff ** 2, dim=-1, keepdim=True) + eps
+        return diff / norm_sq
+
+    def update(self, aggr_out: torch.Tensor) -> torch.Tensor:
+        # Here, update simply returns the aggregated message.
+        return aggr_out
 
 def encode_to_PGA(graph_data):
     """
@@ -96,25 +159,29 @@ def encode_to_PGA(graph_data):
         scalar embeddings
     """
 
+    edge_feature_maker = AggregateEdgeFeatures()
+
     # Extract the data from the graph
     n_objects = graph_data.x.shape[0] # Number of objects
     pos = graph_data.x[:, :3] # Position, (objects, 3)
-    curv = graph_data.x[:, 3:6] # Curvature, (objects, 3)
+    norm = graph_data.x[:, 3:6] # Edge vector encoding, (objects, 3)
     norm = graph_data.x[:, 6:9] # Normal, (objects, 3) 
     bc = graph_data.bc # BC (objects, 2)
     source, destination = graph_data.edge_index # (2, num_edges)
 
+    node_edge_v = edge_feature_maker(pos, graph_data.edge_index)
+
     # Calculate the edge vectors and turn them into edge features
-    edge_vectors = pos[destination] - pos[source] # (num_edges, 3)
-    node_edge_v = torch.zeros(n_objects, 3).to(graph_data.x.device)
-    for index in range(n_objects):
-        out_mask = (source == index)
-        in_mask = (destination == index)
-        out_edge_vectors = edge_vectors[out_mask]
-        in_edge_vectors = -edge_vectors[in_mask]
-        node_edge_vectors = torch.cat([out_edge_vectors, in_edge_vectors], dim=0) # (num_edges from that node, 3)
-        node_edge_vectors = node_edge_vectors / ((torch.linalg.norm(node_edge_vectors, dim = 1, keepdim = True))**2)
-        node_edge_v[index, :] = node_edge_vectors.sum(dim = 0)
+    # edge_vectors = pos[destination] - pos[source] # (num_edges, 3)
+    # node_edge_v = torch.zeros(n_objects, 3).to(graph_data.x.device)
+    # for index in range(n_objects):
+    #     out_mask = (source == index)
+    #     in_mask = (destination == index)
+    #     out_edge_vectors = edge_vectors[out_mask]
+    #     in_edge_vectors = -edge_vectors[in_mask]
+    #     node_edge_vectors = torch.cat([out_edge_vectors, in_edge_vectors], dim=0) # (num_edges from that node, 3)
+    #     node_edge_vectors = node_edge_vectors / ((torch.linalg.norm(node_edge_vectors, dim = 1, keepdim = True))**2)
+    #     node_edge_v[index, :] = node_edge_vectors.sum(dim = 0)
 
 
     # Embed the data into the PGA
@@ -236,3 +303,51 @@ def rigid_body_transform_graph(input_graph, euler_angles, translation):
     x = torch.cat([pos, curv, norm], dim=-1)
     result_graph = Data(x = x, bc = bc, edge_index = edge_index, y = y)
     return result_graph
+
+def shuffle_nodes(data: Data) -> Data:
+    """
+    Randomly permutes the nodes in a PyTorch Geometric Data object,
+    updating node-level attributes (like x, bc, and y) and the edge_index
+    so that the graph structure (and positions) are preserved.
+
+    Parameters
+    ----------
+    data : Data
+        PyG data object containing:
+        - x: node features (assumed shape [num_nodes, feature_dim])
+        - edge_index: connectivity (shape [2, num_edges])
+        - Optionally bc and y.
+
+    Returns
+    -------
+    Data
+        The updated data object with nodes permuted.
+    """
+    device = data.x.device
+    num_nodes = data.x.size(0)
+    
+    # Generate a random permutation vector (new order) on the proper device.
+    perm = torch.randperm(num_nodes, device=device)
+    
+    # Compute the inverse permutation mapping:
+    # For each old index i, inverse_perm[i] = new index where node i appears.
+    inverse_perm = torch.empty_like(perm, device=device)
+    inverse_perm[perm] = torch.arange(num_nodes, device=device)
+    
+    # Permute node-level data:
+    shuffled_x = data.x[perm]
+    if hasattr(data, 'bc'):
+        shuffled_bc = data.bc[perm]
+    if hasattr(data, 'y'):
+        shuffled_y = data.y[perm]
+    
+    # Ensure edge_index is on the target device
+    shuffled_edge_index = data.edge_index.to(device)
+    
+    # Update edge_index: each value in edge_index is an old node index.
+    # Replace them with their new index using the inverse permutation.
+    shuffled_edge_index = inverse_perm[data.edge_index]
+
+    shuffled_data = Data(x = shuffled_x, bc = shuffled_bc, y = shuffled_y, edge_index = shuffled_edge_index)
+    
+    return shuffled_data

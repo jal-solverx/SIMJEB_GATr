@@ -19,7 +19,7 @@ def one_hot_from_rbe(rbe2, N_elementf):
     """
     
     # N_elementf x 1 크기의 0으로 채워진 텐서를 생성
-    one_hot_vectors = torch.zeros(N_elementf, 1)
+    one_hot_vectors = torch.zeros([N_elementf, 1], dtype = torch.long)
     
     # rbe2 리스트의 각 element_id에 대해 해당 인덱스 위치에 1을 할당
     for element_id in rbe2:
@@ -107,8 +107,8 @@ def encode_for_goten(input_graph):
     """
 
     pos = input_graph.x[:, :3] # Position, (objects, 3)
-    source, destination = input_graph.edge_index # (2, num_edges)
-    atomic_numbers = input_graph.bc
+    source, destination = input_graph.edge_index.long() # (2, num_edges)
+    atomic_numbers = input_graph.bc.squeeze(1) # (objects)
 
     edge_vec = pos[destination] - pos[source] # (num_edges, 3)
     edge_diff = torch.linalg.norm(edge_vec, ord = 2, dim = 1, keepdim = True) # (num_edges, 1)

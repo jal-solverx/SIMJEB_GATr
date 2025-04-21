@@ -129,7 +129,8 @@ class GATrmk3(nn.Module):
 
         # (3) Decoder
         y = extract_from_PGA(x_PGA, bc, graph)
-        return y.bc
+        return y.bc # remember to revert to y.bc
         von_mises_stress = von_mises(y.x[:, 6:9])
 
         return von_mises_stress
+    
